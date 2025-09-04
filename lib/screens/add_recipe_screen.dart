@@ -14,10 +14,16 @@ class AddRecipeScreen extends StatefulWidget {
 class _AddRecipeScreenState extends State<AddRecipeScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
+  final _descriptionController = TextEditingController();
+  final _cookingTimeController = TextEditingController();
   final _ingredientsController = TextEditingController();
   final _instructionsController = TextEditingController();
   File? _imageFile;
   final ImagePicker _picker = ImagePicker();
+  String _difficulty = 'Easy';
+  bool _takePhotoSelected = false;
+  bool _uploadFromGallerySelected = true;
+  bool _isLoading = false; // État de chargement local
 
   @override
   Widget build(BuildContext context) {
@@ -25,81 +31,324 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     final recipeProvider = Provider.of<RecipeProvider>(context);
 
     return Scaffold(
-      appBar: AppBar(title: Text('Ajouter une recette')),
+      appBar: AppBar(
+        title: Text('Add New Recipe', style: TextStyle(color: Colors.white)),
+        backgroundColor: Colors.deepOrange,
+        iconTheme: IconThemeData(color: Colors.white),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Sélection d'image
-                GestureDetector(
-                  onTap: _pickImage,
-                  child: Container(
-                    height: 200,
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: _imageFile != null
-                        ? Image.file(_imageFile!, fit: BoxFit.cover)
-                        : Icon(Icons.camera_alt, size: 50),
+                // Section Photo
+                Text(
+                  'Add New Recipe',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange,
                   ),
                 ),
                 SizedBox(height: 16),
+                Center(
+                  child: _imageFile != null
+                      ? Image.file(
+                          _imageFile!,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          height: 200,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            border: Border.all(color: Colors.grey),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Center(
+                            child: Text(
+                              'No photo selected',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ),
+                        ),
+                ),
+                SizedBox(height: 16),
+                Row(
+                  children: [
+                    // Option Take Photo
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: Icon(
+                          _takePhotoSelected
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_unchecked,
+                          color: _takePhotoSelected
+                              ? Colors.deepOrange
+                              : Colors.grey,
+                        ),
+                        label: Text('Take Photo'),
+                        onPressed: () {
+                          setState(() {
+                            _takePhotoSelected = true;
+                            _uploadFromGallerySelected = false;
+                          });
+                          _takePhoto();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _takePhotoSelected
+                              ? Colors.deepOrange
+                              : Colors.grey,
+                          side: BorderSide(
+                            color: _takePhotoSelected
+                                ? Colors.deepOrange
+                                : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    // Option Upload from Gallery
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: Icon(
+                          _uploadFromGallerySelected
+                              ? Icons.radio_button_checked
+                              : Icons.radio_button_unchecked,
+                          color: _uploadFromGallerySelected
+                              ? Colors.deepOrange
+                              : Colors.grey,
+                        ),
+                        label: Text('Upload from Gallery'),
+                        onPressed: () {
+                          setState(() {
+                            _uploadFromGallerySelected = true;
+                            _takePhotoSelected = false;
+                          });
+                          _pickImage();
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: _uploadFromGallerySelected
+                              ? Colors.deepOrange
+                              : Colors.grey,
+                          side: BorderSide(
+                            color: _uploadFromGallerySelected
+                                ? Colors.deepOrange
+                                : Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24),
+                Divider(),
+                SizedBox(height: 16),
+
+                // Section Recipe Information
+                Text(
+                  'Recipe Information',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange,
+                  ),
+                ),
+                SizedBox(height: 16),
+
+                // Recipe Title
+                Text(
+                  'Recipe Title',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: _titleController,
                   decoration: InputDecoration(
-                    labelText: 'Titre de la recette',
+                    hintText: 'Enter recipe name',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer un titre';
+                      return 'Please enter a recipe title';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 16),
+
+                // Short Description
+                Text(
+                  'Short Description',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                TextFormField(
+                  controller: _descriptionController,
+                  maxLines: 2,
+                  decoration: InputDecoration(
+                    hintText: 'Brief description of your recipe',
+                    border: OutlineInputBorder(),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a description';
+                    }
+                    return null;
+                  },
+                ),
+                SizedBox(height: 16),
+
+                // Cooking Time and Difficulty in a row
+                Row(
+                  children: [
+                    // Cooking Time
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Cooking Time',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          TextFormField(
+                            controller: _cookingTimeController,
+                            decoration: InputDecoration(
+                              hintText: 'e.g., 30 min',
+                              border: OutlineInputBorder(),
+                            ),
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return 'Please enter cooking time';
+                              }
+                              return null;
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    // Difficulty
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Difficulty',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          DropdownButtonFormField<String>(
+                            value: _difficulty,
+                            items: ['Easy', 'Medium', 'Hard'].map((
+                              String value,
+                            ) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value),
+                              );
+                            }).toList(),
+                            onChanged: (newValue) {
+                              setState(() {
+                                _difficulty = newValue!;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 24),
+                Divider(),
+                SizedBox(height: 16),
+
+                // Ingredients
+                Text(
+                  'Ingredients',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Add each ingredient on a separate line',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: _ingredientsController,
-                  maxLines: 3,
+                  maxLines: 4,
                   decoration: InputDecoration(
-                    labelText: 'Ingrédients (séparés par des virgules)',
+                    hintText: 'Ingredient 1\nIngredient 2\n...',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer les ingrédients';
+                      return 'Please enter at least one ingredient';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 16),
+
+                // Cooking Instructions
+                Text(
+                  'Cooking Instructions',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.deepOrange,
+                  ),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  'Step-by-step instructions',
+                  style: TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+                SizedBox(height: 8),
                 TextFormField(
                   controller: _instructionsController,
-                  maxLines: 5,
+                  maxLines: 6,
                   decoration: InputDecoration(
-                    labelText: 'Instructions',
+                    hintText: 'Step 1: ...\nStep 2: ...\n...',
                     border: OutlineInputBorder(),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer les instructions';
+                      return 'Please enter cooking instructions';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 24),
-                recipeProvider.isLoading
-                    ? CircularProgressIndicator()
+
+                // Submit Button
+                _isLoading || recipeProvider.isLoading
+                    ? Center(child: CircularProgressIndicator())
                     : SizedBox(
                         width: double.infinity,
+                        height: 50,
                         child: ElevatedButton(
                           onPressed: () =>
                               _addRecipe(authProvider, recipeProvider),
-                          child: Text('Ajouter la recette'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepOrange,
+                          ),
+                          child: Text(
+                            'Submit Recipe',
+                            style: TextStyle(fontSize: 16, color: Colors.white),
+                          ),
                         ),
                       ),
               ],
@@ -110,12 +359,35 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     );
   }
 
+  Future<void> _takePhoto() async {
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.camera);
+      if (image != null) {
+        setState(() {
+          _imageFile = File(image.path);
+        });
+      }
+    } catch (e) {
+      print('Error taking photo: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error taking photo: $e')));
+    }
+  }
+
   Future<void> _pickImage() async {
-    final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _imageFile = File(image.path);
-      });
+    try {
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _imageFile = File(image.path);
+        });
+      }
+    } catch (e) {
+      print('Error picking image: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error picking image: $e')));
     }
   }
 
@@ -124,39 +396,54 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     RecipeProvider recipeProvider,
   ) async {
     if (_formKey.currentState!.validate() && authProvider.currentUser != null) {
-      // Préparer la liste des ingrédients
-      List<String> ingredients = _ingredientsController.text
-          .split(',')
-          .map((ingredient) => ingredient.trim())
-          .where((ingredient) => ingredient.isNotEmpty)
-          .toList();
+      setState(() {
+        _isLoading = true;
+      });
 
-      // Créer l'objet Recipe avec une URL d'image vide pour le moment
-      RecipeModel newRecipe = RecipeModel(
-        recipeId: DateTime.now().millisecondsSinceEpoch.toString(),
-        title: _titleController.text,
-        ingredients: ingredients,
-        instructions: _instructionsController.text,
-        imageUrl: '', // Sera rempli après l'upload
-        authorId: authProvider.currentUser!.userId,
-        authorName:
-            authProvider.currentUser!.displayName ??
-            authProvider.currentUser!.email,
-        datePublication: DateTime.now(),
-      );
+      try {
+        // Préparer la liste des ingrédients
+        List<String> ingredients = _ingredientsController.text
+            .split('\n')
+            .map((ingredient) => ingredient.trim())
+            .where((ingredient) => ingredient.isNotEmpty)
+            .toList();
 
-      // Ajouter la recette
-      final success = await recipeProvider.addRecipe(newRecipe, _imageFile);
+        // Créer l'objet Recipe avec une URL d'image vide pour le moment
+        RecipeModel newRecipe = RecipeModel(
+          recipeId: DateTime.now().millisecondsSinceEpoch.toString(),
+          title: _titleController.text,
+          ingredients: ingredients,
+          instructions: _instructionsController.text,
+          imageUrl: '', // Sera rempli après l'upload
+          authorId: authProvider.currentUser!.userId,
+          authorName:
+              authProvider.currentUser!.displayName ??
+              authProvider.currentUser!.email,
+          datePublication: DateTime.now(),
+        );
 
-      if (success) {
-        Navigator.pop(context);
+        // Ajouter la recette
+        final success = await recipeProvider.addRecipe(newRecipe, _imageFile);
+
+        if (success) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Recipe added successfully!')));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error adding recipe. Please try again.')),
+          );
+        }
+      } catch (e) {
+        print('Error adding recipe: $e');
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Recette ajoutée avec succès!')));
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erreur lors de l\'ajout de la recette')),
-        );
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      } finally {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
   }

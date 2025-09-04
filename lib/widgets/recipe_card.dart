@@ -10,7 +10,7 @@ class RecipeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      margin: EdgeInsets.only(bottom: 16.0),
       child: InkWell(
         onTap: () {
           Navigator.push(
@@ -23,46 +23,101 @@ class RecipeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Hero(
-              tag: 'recipe-image-${recipe.recipeId}',
-              child: recipe.imageUrl.isNotEmpty
-                  ? Image.network(
-                      recipe.imageUrl,
-                      height: 200,
-                      fit: BoxFit.cover,
-                    )
-                  : Container(
-                      height: 200,
-                      color: Colors.grey[300],
-                      child: Center(
-                        child: Icon(
-                          Icons.fastfood,
-                          size: 50,
-                          color: Colors.grey[600],
+            // Image avec badges de temps et difficulté
+            Stack(
+              children: [
+                Hero(
+                  tag: 'recipe-image-${recipe.recipeId}',
+                  child: recipe.imageUrl.isNotEmpty
+                      ? Image.network(
+                          recipe.imageUrl,
+                          height: 200,
+                          fit: BoxFit.cover,
+                        )
+                      : Container(
+                          height: 200,
+                          color: Colors.grey[300],
+                          child: Center(
+                            child: Icon(
+                              Icons.fastfood,
+                              size: 50,
+                              color: Colors.grey[600],
+                            ),
+                          ),
                         ),
+                ),
+                // Badge de temps
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.deepOrange,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      '45 min',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
+                  ),
+                ),
+                // Badge de difficulté
+                Positioned(
+                  top: 10,
+                  right: 10,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.deepOrange,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      'Medium',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
+            // Contenu de la carte
             Padding(
-              padding: EdgeInsets.all(16),
+              padding: EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     recipe.title,
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Par ${recipe.authorName}',
+                    'Traditional fried pork served with spicy pickled vegetables',
                     style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   SizedBox(height: 8),
-                  Text(
-                    '${recipe.ingredients.length} ingrédients',
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  Row(
+                    children: [
+                      Text(
+                        'By ${recipe.authorName}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                      Spacer(),
+                      Icon(Icons.access_time, size: 14, color: Colors.grey),
+                      SizedBox(width: 4),
+                      Text(
+                        '30 min',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
+                      ),
+                    ],
                   ),
                 ],
               ),
