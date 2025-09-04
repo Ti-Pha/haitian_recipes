@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "376073248019",
+    "project_id": "haitianrecipes-a75a1",
+    "storage_bucket": "haitianrecipes-a75a1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:376073248019:android:5e135f4eb0ff3b5cea8ee6",
+        "android_client_info": {
+          "package_name": "com.example.haitian_recipes"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB5UZUUKB_NGmS_l-7AONyKfOf5XqoujQI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
