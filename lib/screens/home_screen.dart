@@ -5,6 +5,7 @@ import '../providers/recipe_provider.dart';
 import '../models/recipe_model.dart';
 import '../widgets/recipe_card.dart';
 import 'add_recipe_screen.dart';
+import 'profil_screen.dart'; // Import ajouté
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -131,7 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2: // Add
         return AddRecipeScreen();
       case 3: // Profile
-        return Center(child: Text('Profile - À implémenter'));
+        return ProfileScreen(); // Modifié pour afficher l'écran de profil
       default:
         return _buildHomeContent(Provider.of<RecipeProvider>(context));
     }

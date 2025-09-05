@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class RecipeModel {
   final String recipeId;
   final String title;
@@ -19,7 +21,49 @@ class RecipeModel {
     required this.datePublication,
   });
 
-  // Ajout de la méthode copyWith manquante
+  // Méthode pour convertir l'objet en Map pour Firestore
+  Map<String, dynamic> toMap() {
+    return {
+      'recipeId': recipeId,
+      'title': title,
+      'ingredients': ingredients,
+      'instructions': instructions,
+      'imageUrl': imageUrl,
+      'authorId': authorId,
+      'authorName': authorName,
+      'datePublication':
+          datePublication, // Firestore gère directement le type DateTime
+    };
+  }
+
+  // Méthode pour créer un objet depuis un Map de Firestore
+  factory RecipeModel.fromMap(Map<String, dynamic> map) {
+    // Gérer la conversion du Timestamp de Firestore en DateTime de Dart
+    final date = map['datePublication'];
+    final DateTime publicationDate;
+
+    if (date is Timestamp) {
+      publicationDate = date.toDate();
+    } else if (date is String) {
+      publicationDate = DateTime.parse(date);
+    } else {
+      publicationDate =
+          DateTime.now(); // Valeur par défaut si le type est incorrect
+    }
+
+    return RecipeModel(
+      recipeId: map['recipeId'] ?? '',
+      title: map['title'] ?? '',
+      ingredients: List<String>.from(map['ingredients'] ?? []),
+      instructions: map['instructions'] ?? '',
+      imageUrl: map['imageUrl'] ?? '',
+      authorId: map['authorId'] ?? '',
+      authorName: map['authorName'] ?? '',
+      datePublication: publicationDate,
+    );
+  }
+
+  // Méthode copyWith pour la mise à jour des objets
   RecipeModel copyWith({
     String? recipeId,
     String? title,
@@ -39,34 +83,6 @@ class RecipeModel {
       authorId: authorId ?? this.authorId,
       authorName: authorName ?? this.authorName,
       datePublication: datePublication ?? this.datePublication,
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'recipeId': recipeId,
-      'title': title,
-      'ingredients': ingredients,
-      'instructions': instructions,
-      'imageUrl': imageUrl,
-      'authorId': authorId,
-      'authorName': authorName,
-      'datePublication': datePublication.toIso8601String(),
-    };
-  }
-
-  factory RecipeModel.fromMap(Map<String, dynamic> map) {
-    return RecipeModel(
-      recipeId: map['recipeId'] ?? '',
-      title: map['title'] ?? '',
-      ingredients: List<String>.from(map['ingredients'] ?? []),
-      instructions: map['instructions'] ?? '',
-      imageUrl: map['imageUrl'] ?? '',
-      authorId: map['authorId'] ?? '',
-      authorName: map['authorName'] ?? '',
-      datePublication: map['datePublication'] != null
-          ? DateTime.parse(map['datePublication'])
-          : DateTime.now(),
     );
   }
 }

@@ -18,14 +18,24 @@ class RecipeProvider with ChangeNotifier {
   Future<void> loadRecipes() async {
     _setLoading(true);
     try {
-      _databaseService.getRecipes().listen((recipes) {
-        _recipes = recipes;
-        notifyListeners();
-      });
+      // S'abonner au stream des recettes
+      _databaseService.getRecipes().listen(
+        (recipes) {
+          _recipes = recipes;
+          _setLoading(
+            false,
+          ); // Mettre à jour le chargement une fois les données reçues
+          notifyListeners();
+        },
+        onError: (error) {
+          _setLoading(false);
+          print('Erreur lors de l\'écoute des recettes: $error');
+        },
+      );
     } catch (e) {
+      _setLoading(false);
       print('Erreur lors du chargement des recettes: $e');
     }
-    _setLoading(false);
   }
 
   // Ajouter une recette
@@ -51,12 +61,12 @@ class RecipeProvider with ChangeNotifier {
       // Recharger les recettes
       await loadRecipes();
 
-      _setLoading(false);
       return true;
     } catch (e) {
       print('Erreur lors de l\'ajout: $e');
-      _setLoading(false);
       return false;
+    } finally {
+      _setLoading(false);
     }
   }
 

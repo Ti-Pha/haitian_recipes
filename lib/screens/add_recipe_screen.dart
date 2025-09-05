@@ -23,11 +23,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   String _difficulty = 'Easy';
   bool _takePhotoSelected = false;
   bool _uploadFromGallerySelected = true;
-  bool _isLoading = false; // État de chargement local
 
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final recipeProvider = Provider.of<RecipeProvider>(context);
 
     return Scaffold(
@@ -44,7 +43,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Section Photo
                 Text(
                   'Add New Recipe',
                   style: TextStyle(
@@ -80,7 +78,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 SizedBox(height: 16),
                 Row(
                   children: [
-                    // Option Take Photo
                     Expanded(
                       child: OutlinedButton.icon(
                         icon: Icon(
@@ -112,7 +109,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                       ),
                     ),
                     SizedBox(width: 16),
-                    // Option Upload from Gallery
                     Expanded(
                       child: OutlinedButton.icon(
                         icon: Icon(
@@ -148,8 +144,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 SizedBox(height: 24),
                 Divider(),
                 SizedBox(height: 16),
-
-                // Section Recipe Information
                 Text(
                   'Recipe Information',
                   style: TextStyle(
@@ -159,8 +153,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   ),
                 ),
                 SizedBox(height: 16),
-
-                // Recipe Title
                 Text(
                   'Recipe Title',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -180,8 +172,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   },
                 ),
                 SizedBox(height: 16),
-
-                // Short Description
                 Text(
                   'Short Description',
                   style: TextStyle(fontWeight: FontWeight.bold),
@@ -202,11 +192,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   },
                 ),
                 SizedBox(height: 16),
-
-                // Cooking Time and Difficulty in a row
                 Row(
                   children: [
-                    // Cooking Time
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -233,7 +220,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                       ),
                     ),
                     SizedBox(width: 16),
-                    // Difficulty
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -270,8 +256,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 SizedBox(height: 24),
                 Divider(),
                 SizedBox(height: 16),
-
-                // Ingredients
                 Text(
                   'Ingredients',
                   style: TextStyle(
@@ -301,8 +285,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   },
                 ),
                 SizedBox(height: 16),
-
-                // Cooking Instructions
                 Text(
                   'Cooking Instructions',
                   style: TextStyle(
@@ -332,25 +314,23 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                   },
                 ),
                 SizedBox(height: 24),
-
-                // Submit Button
-                _isLoading || recipeProvider.isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    : SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () =>
-                              _addRecipe(authProvider, recipeProvider),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepOrange,
-                          ),
-                          child: Text(
-                            'Submit Recipe',
-                            style: TextStyle(fontSize: 16, color: Colors.white),
-                          ),
-                        ),
+                if (recipeProvider.isLoading)
+                  Center(child: CircularProgressIndicator())
+                else
+                  Container(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: () => _addRecipe(authProvider, recipeProvider),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.deepOrange,
                       ),
+                      child: Text(
+                        'Submit Recipe',
+                        style: TextStyle(fontSize: 16, color: Colors.white),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),
@@ -396,25 +376,33 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     RecipeProvider recipeProvider,
   ) async {
     if (_formKey.currentState!.validate() && authProvider.currentUser != null) {
-      setState(() {
-        _isLoading = true;
-      });
-
       try {
-        // Préparer la liste des ingrédients
         List<String> ingredients = _ingredientsController.text
             .split('\n')
             .map((ingredient) => ingredient.trim())
             .where((ingredient) => ingredient.isNotEmpty)
             .toList();
 
-        // Créer l'objet Recipe avec une URL d'image vide pour le moment
+        if (ingredients.isEmpty) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Please enter at least one ingredient.')),
+          );
+          return;
+        }
+
+        if (_imageFile == null) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Please select an image.')));
+          return;
+        }
+
         RecipeModel newRecipe = RecipeModel(
           recipeId: DateTime.now().millisecondsSinceEpoch.toString(),
           title: _titleController.text,
           ingredients: ingredients,
           instructions: _instructionsController.text,
-          imageUrl: '', // Sera rempli après l'upload
+          imageUrl: '',
           authorId: authProvider.currentUser!.userId,
           authorName:
               authProvider.currentUser!.displayName ??
@@ -422,7 +410,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           datePublication: DateTime.now(),
         );
 
-        // Ajouter la recette
         final success = await recipeProvider.addRecipe(newRecipe, _imageFile);
 
         if (success) {
@@ -436,14 +423,10 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           );
         }
       } catch (e) {
-        print('Error adding recipe: $e');
+        print('Error creating new recipe: $e');
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
-      } finally {
-        setState(() {
-          _isLoading = false;
-        });
       }
     }
   }
