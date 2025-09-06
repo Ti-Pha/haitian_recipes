@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
 import '../providers/auth_provider.dart';
 import '../providers/recipe_provider.dart';
 import '../models/recipe_model.dart';
 import 'login_screen.dart';
+import 'edit_profile_screen.dart'; // Importez le nouvel écran
+
+// ... (code existant de la classe ProfileScreen et _ProfileScreenState) ...
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -11,15 +15,18 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  // ... (méthode build existante) ...
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final recipeProvider = Provider.of<RecipeProvider>(context);
 
-    // Filtrer les recettes de l'utilisateur connecté
     final userRecipes = recipeProvider.recipes
         .where((recipe) => recipe.authorId == authProvider.currentUser?.userId)
         .toList();
+
+    final int favoriteCount =
+        authProvider.currentUser?.favoriteRecipes.length ?? 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -37,23 +44,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // En-tête du profil
             _buildProfileHeader(authProvider),
             SizedBox(height: 24),
-
-            // Statistiques
-            _buildStatsSection(userRecipes.length),
+            _buildStatsSection(userRecipes.length, favoriteCount),
             SizedBox(height: 24),
-
-            // Ligne séparatrice
             Divider(thickness: 1),
             SizedBox(height: 24),
-
-            // Account Settings
             _buildAccountSettings(),
             SizedBox(height: 24),
-
-            // Bouton de déconnexion
             _buildLogoutButton(authProvider),
           ],
         ),
@@ -61,11 +59,90 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // ... (méthodes existantes) ...
+
+  Widget _buildAccountSettings() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Account Settings',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 16),
+        _buildSettingsItem(
+          icon: Icons.person,
+          title: 'Edit Profile',
+          subtitle: 'Update your personal information',
+          onTap: () {
+            // Navigue vers l'écran de modification du profil
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const EditProfileScreen(),
+              ),
+            );
+          },
+        ),
+        SizedBox(height: 16),
+        _buildSettingsItem(
+          icon: Icons.settings,
+          title: 'App Settings',
+          subtitle: 'Notifications and preferences',
+        ),
+        SizedBox(height: 16),
+        _buildSettingsItem(
+          icon: Icons.share,
+          title: 'Share App',
+          subtitle: 'Tell friends about Haitian Recipes',
+        ),
+      ],
+    );
+  }
+
+  // Mettre à jour la signature de la méthode _buildSettingsItem pour accepter un onTap
+  Widget _buildSettingsItem({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    VoidCallback? onTap, // Ajout de ce paramètre
+  }) {
+    return InkWell(
+      onTap: onTap, // Utilise la fonction passée en paramètre
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.deepOrange, size: 24),
+            SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ... (le reste du code de l'écran reste inchangé) ...
   Widget _buildProfileHeader(AuthProvider authProvider) {
+    String formattedDate = 'Member since January 2024';
     return Center(
       child: Column(
         children: [
-          // Avatar avec initiales
           Container(
             width: 80,
             height: 80,
@@ -102,7 +179,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           SizedBox(height: 8),
           Text(
-            'Member since January 2024', // À adapter avec la date réelle d'inscription
+            formattedDate,
             style: TextStyle(fontSize: 14, color: Colors.grey[500]),
           ),
         ],
@@ -110,15 +187,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildStatsSection(int recipeCount) {
+  Widget _buildStatsSection(int recipeCount, int favoriteCount) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         _buildStatItem(recipeCount.toString(), 'Recipes Shared'),
-        _buildStatItem(
-          '8',
-          'Favorites',
-        ), // À implémenter avec les vrais favoris
+        _buildStatItem(favoriteCount.toString(), 'Favorites'),
       ],
     );
   }
@@ -137,71 +211,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         SizedBox(height: 4),
         Text(label, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
       ],
-    );
-  }
-
-  Widget _buildAccountSettings() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Account Settings',
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 16),
-        _buildSettingsItem(
-          icon: Icons.person,
-          title: 'Edit Profile',
-          subtitle: 'Update your personal information',
-        ),
-        SizedBox(height: 16),
-        _buildSettingsItem(
-          icon: Icons.settings,
-          title: 'App Settings',
-          subtitle: 'Notifications and preferences',
-        ),
-        SizedBox(height: 16),
-        _buildSettingsItem(
-          icon: Icons.share,
-          title: 'Share App',
-          subtitle: 'Tell friends about Haitian Recipes',
-        ),
-      ],
-    );
-  }
-
-  Widget _buildSettingsItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
-    return InkWell(
-      onTap: () {
-        // TODO: Implémenter les actions pour chaque élément
-      },
-      child: Row(
-        children: [
-          Icon(icon, color: Colors.deepOrange, size: 24),
-          SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-          ),
-          Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey[400]),
-        ],
-      ),
     );
   }
 

@@ -371,6 +371,8 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     }
   }
 
+  // ... (code existant) ...
+
   void _addRecipe(
     AuthProvider authProvider,
     RecipeProvider recipeProvider,
@@ -403,7 +405,20 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         final success = await recipeProvider.addRecipe(newRecipe, _imageFile);
 
         if (success) {
-          Navigator.pop(context);
+          // Redirection vers l'écran d'accueil après un ajout réussi
+          // La ligne ci-dessous est à changer
+          // Navigator.pop(context);
+
+          // Utilisez pushAndRemoveUntil pour rediriger vers la page d'accueil
+          // et retirer toutes les autres pages de la pile de navigation.
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(
+              builder: (context) => AddRecipeScreen(),
+            ), // Remplacez 'HomeScreen' par le nom de votre page d'accueil
+            (Route<dynamic> route) => false,
+          );
+
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Recette ajoutée avec succès!')),
           );
@@ -420,4 +435,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
       }
     }
   }
+
+  // ... (le reste du code) ...
 }

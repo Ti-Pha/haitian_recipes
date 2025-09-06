@@ -52,16 +52,16 @@ class RecipeProvider with ChangeNotifier {
         print('Image sauvegardée localement: $localImagePath');
       }
 
-      // Créer une copie de la recette avec le chemin local de l'image
+      // Creer une copie de la recette avec le chemin local de l'image
       RecipeModel recipeWithLocalImage = recipe.copyWith(
         localImagePath: localImagePath,
         imageUrl: null,
       );
 
-      // Ajouter la recette à la base de données
+      // Ajouter la recette a la base de donnees
       await _databaseService.addRecipe(recipeWithLocalImage);
 
-      // Recharger les recettes pour mettre à jour la liste
+      // Recharger les recettes pour mettre a jour la liste
       await loadRecipes();
 
       return true;
@@ -73,13 +73,13 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
-  // 👇 Nouvelle méthode pour mettre à jour une recette
+  // 👇 Nouvelle methode pour mettre a jour une recette
   Future<void> updateRecipe(RecipeModel updatedRecipe) async {
     try {
-      // Mettre à jour la recette dans la base de données
+      // Mettre a jour la recette dans la base de donnees
       await _databaseService.updateRecipe(updatedRecipe);
 
-      // Mettre à jour la liste locale
+      // Mettre a jour la liste locale
       final index = _recipes.indexWhere(
         (recipe) => recipe.recipeId == updatedRecipe.recipeId,
       );
@@ -115,7 +115,7 @@ class RecipeProvider with ChangeNotifier {
     }
   }
 
-  // Méthode pour récupérer une image à partir de son chemin local
+  // Méthode pour recuperer une image a partir de son chemin local
   Future<File?> getRecipeImage(RecipeModel recipe) async {
     if (recipe.localImagePath != null) {
       try {

@@ -12,11 +12,9 @@ class AuthProvider with ChangeNotifier {
   UserModel? get currentUser => _currentUser;
   bool get isLoading => _isLoading;
 
-  // Initialiser l'état d'authentification
   void initialize() {
     _auth.authStateChanges().listen((firebaseUser) async {
       if (firebaseUser != null) {
-        // Récupérer les données utilisateur depuis Firestore
         DocumentSnapshot userDoc = await _firestore
             .collection('users')
             .doc(firebaseUser.uid)
@@ -27,14 +25,13 @@ class AuthProvider with ChangeNotifier {
             userDoc.data() as Map<String, dynamic>,
           );
         } else {
-          // Créer un document utilisateur s'il n'existe pas
           _currentUser = UserModel(
             userId: firebaseUser.uid,
             email: firebaseUser.email!,
             displayName:
-                firebaseUser.displayName ?? firebaseUser.email!.split('@')[0],
+                firebaseUser.displayName ??
+                firebaseUser.email!.split('@')[0], // Changement ici
           );
-
           await _firestore
               .collection('users')
               .doc(firebaseUser.uid)
@@ -47,7 +44,6 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
-  // Connexion
   Future<bool> signInWithEmail(String email, String password) async {
     _setLoading(true);
     try {
@@ -78,11 +74,10 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Inscription
   Future<bool> signUpWithEmail(
     String email,
     String password,
-    String displayName,
+    String displayName, // Changement ici
   ) async {
     _setLoading(true);
     try {
@@ -95,7 +90,7 @@ class AuthProvider with ChangeNotifier {
         UserModel newUser = UserModel(
           userId: result.user!.uid,
           email: email,
-          displayName: displayName,
+          displayName: displayName, // Changement ici
         );
 
         await _firestore
@@ -115,7 +110,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Déconnexion
   Future<void> signOut() async {
     await _auth.signOut();
     _currentUser = null;
@@ -125,5 +119,53 @@ class AuthProvider with ChangeNotifier {
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+
+  // Méthode pour mettre à jour le profil de l'utilisateur
+  Future<void> updateUserProfile({String? displayName}) async {
+    if (currentUser == null) return;
+
+    try {
+      await _firestore.collection('users').doc(currentUser!.userId).update({
+        'displayName': displayName,
+      });
+
+      _currentUser = currentUser!.copyWith(displayName: displayName);
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating user profile: $e');
+      }
+      rethrow;
+    }
+  }
+
+  Future<void> toggleFavorite(String recipeId) async {
+    if (_currentUser == null) return;
+
+    List<String> updatedFavorites = List.from(_currentUser!.favoriteRecipes);
+
+    if (updatedFavorites.contains(recipeId)) {
+      updatedFavorites.remove(recipeId);
+    } else {
+      updatedFavorites.add(recipeId);
+    }
+
+    try {
+      await _firestore.collection('users').doc(_currentUser!.userId).update({
+        'favoriteRecipes': updatedFavorites,
+      });
+
+      _currentUser = _currentUser!.copyWith(favoriteRecipes: updatedFavorites);
+      notifyListeners();
+    } catch (e) {
+      if (kDebugMode) {
+        print('Error updating favorites: $e');
+      }
+    }
+  }
+
+  bool isFavorite(String recipeId) {
+    return _currentUser?.favoriteRecipes.contains(recipeId) ?? false;
   }
 }

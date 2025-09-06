@@ -8,7 +8,7 @@ class LocalStorageService {
   factory LocalStorageService() => _instance;
   LocalStorageService._internal();
 
-  // Obtenir le répertoire de documents de l'application
+  // Obtenir le repertoire de documents de l'application
   Future<Directory> get _appDocumentsDirectory async {
     return await getApplicationDocumentsDirectory();
   }
@@ -19,7 +19,7 @@ class LocalStorageService {
       final Directory appDocDir = await _appDocumentsDirectory;
       final String imagePath = path.join(appDocDir.path, fileName);
 
-      // Copier le fichier vers le répertoire de l'application
+      // Copier le fichier vers le repertoire de l'application
       final File savedImage = await imageFile.copy(imagePath);
 
       return savedImage.path;
@@ -29,7 +29,7 @@ class LocalStorageService {
     }
   }
 
-  // Charger une image à partir du stockage local
+  // Charger une image a partir du stockage local
   Future<File> loadImageFromLocal(String imagePath) async {
     try {
       return File(imagePath);
@@ -76,7 +76,7 @@ class LocalStorageService {
     }
   }
 
-  // Obtenir tous les fichiers d'images sauvegardés
+  // Obtenir tous les fichiers d'images sauvegardes
   Future<List<String>> getAllSavedImages() async {
     try {
       final Directory appDocDir = await _appDocumentsDirectory;

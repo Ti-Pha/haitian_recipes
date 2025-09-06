@@ -6,6 +6,7 @@ import '../models/recipe_model.dart';
 import '../widgets/recipe_card.dart';
 import 'add_recipe_screen.dart';
 import 'profil_screen.dart'; // Import ajouté
+import 'favorite_recipes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -137,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildOtherTabs() {
     switch (_selectedIndex) {
       case 1: // Favorites
-        return Center(child: Text('Favorites - À implémenter'));
+        return FavoriteRecipesScreen();
       case 2: // Add
         return AddRecipeScreen();
       case 3: // Profile

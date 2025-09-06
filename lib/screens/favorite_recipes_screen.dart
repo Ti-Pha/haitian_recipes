@@ -1,0 +1,46 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/recipe_provider.dart';
+import '../widgets/recipe_card.dart';
+
+class FavoriteRecipesScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+    final recipeProvider = Provider.of<RecipeProvider>(context);
+
+    if (authProvider.currentUser == null) {
+      return Center(
+        child: Text(
+          'Veuillez vous connecter pour voir vos recettes favorites.',
+          textAlign: TextAlign.center,
+          style: TextStyle(fontSize: 18, color: Colors.grey),
+        ),
+      );
+    }
+
+    final favoriteRecipeIds = authProvider.currentUser!.favoriteRecipes;
+    final favoriteRecipes = recipeProvider.recipes
+        .where((recipe) => favoriteRecipeIds.contains(recipe.recipeId))
+        .toList();
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Mes Recettes Favorites')),
+      body: favoriteRecipes.isEmpty
+          ? Center(
+              child: Text(
+                'Aucune recette favorite pour le moment.',
+                style: TextStyle(fontSize: 18, color: Colors.grey),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16.0),
+              itemCount: favoriteRecipes.length,
+              itemBuilder: (context, index) {
+                return RecipeCard(recipe: favoriteRecipes[index]);
+              },
+            ),
+    );
+  }
+}

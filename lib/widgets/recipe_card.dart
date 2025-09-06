@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/recipe_model.dart';
+import '../providers/auth_provider.dart';
 import '../screens/recipe_detail_screen.dart';
 import 'dart:io';
 
@@ -10,6 +12,10 @@ class RecipeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Écoute les changements dans le AuthProvider pour mettre à jour l'état des favoris
+    final authProvider = Provider.of<AuthProvider>(context);
+    final bool isFavorite = authProvider.isFavorite(recipe.recipeId);
+
     return Card(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       elevation: 5,
@@ -25,7 +31,7 @@ class RecipeCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_hasLocalImage()) // 👈 Condition pour afficher l'image uniquement si elle existe
+            if (_hasLocalImage())
               Stack(
                 children: [
                   ClipRRect(
@@ -44,9 +50,23 @@ class RecipeCard extends StatelessWidget {
                         shape: BoxShape.circle,
                       ),
                       child: IconButton(
-                        icon: Icon(Icons.favorite_border, color: Colors.white),
+                        icon: Icon(
+                          isFavorite ? Icons.favorite : Icons.favorite_border,
+                          color: isFavorite ? Colors.red : Colors.white,
+                        ),
                         onPressed: () {
-                          // TODO: Implement favorites logic
+                          // Vérifie si l'utilisateur est connecté avant d'ajouter un favori
+                          if (authProvider.currentUser != null) {
+                            authProvider.toggleFavorite(recipe.recipeId);
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Veuillez vous connecter pour ajouter aux favoris.',
+                                ),
+                              ),
+                            );
+                          }
                         },
                       ),
                     ),
@@ -110,7 +130,6 @@ class RecipeCard extends StatelessWidget {
     );
   }
 
-  // Ajout d'une nouvelle méthode pour vérifier l'existence de l'image
   bool _hasLocalImage() {
     return recipe.localImagePath != null &&
         File(recipe.localImagePath!).existsSync();
