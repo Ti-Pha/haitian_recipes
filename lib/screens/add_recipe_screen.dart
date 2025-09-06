@@ -377,32 +377,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   ) async {
     if (_formKey.currentState!.validate() && authProvider.currentUser != null) {
       try {
+        // Préparer la liste des ingrédients
         List<String> ingredients = _ingredientsController.text
             .split('\n')
             .map((ingredient) => ingredient.trim())
             .where((ingredient) => ingredient.isNotEmpty)
             .toList();
 
-        if (ingredients.isEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Please enter at least one ingredient.')),
-          );
-          return;
-        }
-
-        if (_imageFile == null) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Please select an image.')));
-          return;
-        }
-
+        // Créer l'objet Recipe
         RecipeModel newRecipe = RecipeModel(
           recipeId: DateTime.now().millisecondsSinceEpoch.toString(),
           title: _titleController.text,
           ingredients: ingredients,
           instructions: _instructionsController.text,
-          imageUrl: '',
+          imageUrl: null, // On n'utilise plus Firebase Storage
+          localImagePath: null, // Sera rempli après la sauvegarde locale
           authorId: authProvider.currentUser!.userId,
           authorName:
               authProvider.currentUser!.displayName ??
@@ -410,23 +399,24 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
           datePublication: DateTime.now(),
         );
 
+        // Ajouter la recette avec l'image locale
         final success = await recipeProvider.addRecipe(newRecipe, _imageFile);
 
         if (success) {
           Navigator.pop(context);
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Recipe added successfully!')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Recette ajoutée avec succès!')),
+          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Error adding recipe. Please try again.')),
+            SnackBar(content: Text('Erreur lors de l\'ajout de la recette')),
           );
         }
       } catch (e) {
-        print('Error creating new recipe: $e');
+        print('Erreur: $e');
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+        ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
       }
     }
   }

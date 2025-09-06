@@ -114,10 +114,19 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 )
               : ListView.builder(
-                  padding: EdgeInsets.all(16.0),
+                  // padding: EdgeInsets.all(16.0), // 👈 Suppression de ce padding
+                  padding: EdgeInsets
+                      .zero, // 👈 Remplacez-le par EdgeInsets.zero si nécessaire
                   itemCount: recipeProvider.recipes.length,
                   itemBuilder: (context, index) {
-                    return RecipeCard(recipe: recipeProvider.recipes[index]);
+                    return Padding(
+                      // 👈 Ajout d'un Padding autour de chaque élément
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 8.0,
+                      ),
+                      child: RecipeCard(recipe: recipeProvider.recipes[index]),
+                    );
                   },
                 ),
         ),
