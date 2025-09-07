@@ -1,5 +1,3 @@
-// lib/screens/recipe_detail_screen.dart
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../models/recipe_model.dart';
@@ -99,7 +97,7 @@ class RecipeDetailScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    'Par ${recipe.authorName}',
+                    'Publié par ${recipe.authorName}',
                     style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                   ),
                   SizedBox(height: 16),

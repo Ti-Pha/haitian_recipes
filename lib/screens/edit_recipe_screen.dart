@@ -9,7 +9,7 @@ import '../providers/recipe_provider.dart';
 class EditRecipeScreen extends StatefulWidget {
   final RecipeModel recipe;
 
-  const EditRecipeScreen({Key? key, required this.recipe}) : super(key: key);
+  const EditRecipeScreen({super.key, required this.recipe});
 
   @override
   _EditRecipeScreenState createState() => _EditRecipeScreenState();
@@ -156,11 +156,11 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _updateRecipe,
-                child: Text('Mettre à jour la recette'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepOrange,
                   minimumSize: Size(double.infinity, 50),
                 ),
+                child: Text('Mettre à jour la recette'),
               ),
             ],
           ),

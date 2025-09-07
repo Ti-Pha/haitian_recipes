@@ -5,6 +5,8 @@ import '../providers/recipe_provider.dart';
 import '../widgets/recipe_card.dart';
 
 class FavoriteRecipesScreen extends StatelessWidget {
+  const FavoriteRecipesScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);

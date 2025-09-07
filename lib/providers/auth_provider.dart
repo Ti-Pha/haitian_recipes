@@ -29,8 +29,7 @@ class AuthProvider with ChangeNotifier {
             userId: firebaseUser.uid,
             email: firebaseUser.email!,
             displayName:
-                firebaseUser.displayName ??
-                firebaseUser.email!.split('@')[0], // Changement ici
+                firebaseUser.displayName ?? firebaseUser.email!.split('@')[0],
           );
           await _firestore
               .collection('users')
@@ -77,7 +76,7 @@ class AuthProvider with ChangeNotifier {
   Future<bool> signUpWithEmail(
     String email,
     String password,
-    String displayName, // Changement ici
+    String displayName,
   ) async {
     _setLoading(true);
     try {
@@ -90,7 +89,7 @@ class AuthProvider with ChangeNotifier {
         UserModel newUser = UserModel(
           userId: result.user!.uid,
           email: email,
-          displayName: displayName, // Changement ici
+          displayName: displayName,
         );
 
         await _firestore
@@ -121,7 +120,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Méthode pour mettre à jour le profil de l'utilisateur
   Future<void> updateUserProfile({String? displayName}) async {
     if (currentUser == null) return;
 
@@ -165,26 +163,18 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // ... le reste de votre classe AuthProvider
-
-  // Dans le fichier auth_provider.dart
-  Future<void> removeFavorite(String recipeId) async {
-    if (_currentUser == null) return;
-    List<String> updatedFavorites = List.from(_currentUser!.favoriteRecipes);
-    if (updatedFavorites.contains(recipeId)) {
-      updatedFavorites.remove(recipeId);
-      try {
-        await _firestore.collection('users').doc(_currentUser!.userId).update({
-          'favoriteRecipes': updatedFavorites,
-        });
-        _currentUser = _currentUser!.copyWith(
-          favoriteRecipes: updatedFavorites,
+  // C'est ici que la méthode manquante a été ajoutée.
+  Future<void> removeFavoriteFromUser(String userId, String recipeId) async {
+    try {
+      await _firestore.collection('users').doc(userId).update({
+        'favoriteRecipes': FieldValue.arrayRemove([recipeId]),
+      });
+      print('Recette $recipeId retirée des favoris de l\'utilisateur $userId');
+    } catch (e) {
+      if (kDebugMode) {
+        print(
+          'Erreur lors de la suppression du favori pour l\'utilisateur $userId: $e',
         );
-        notifyListeners();
-      } catch (e) {
-        if (kDebugMode) {
-          print('Error removing favorite: $e');
-        }
       }
     }
   }

@@ -7,8 +7,11 @@ import '../widgets/recipe_card.dart';
 import 'add_recipe_screen.dart';
 import 'profil_screen.dart'; // Import ajouté
 import 'favorite_recipes_screen.dart';
+import 'search_recipes_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -70,6 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: Icon(Icons.favorite),
             label: 'Favorites',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Search'),
           BottomNavigationBarItem(icon: Icon(Icons.add), label: 'Add'),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
         ],
@@ -85,22 +89,6 @@ class _HomeScreenState extends State<HomeScreen> {
     return Column(
       children: [
         // Barre de recherche
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          child: TextField(
-            controller: _searchController,
-            decoration: InputDecoration(
-              hintText: 'Q Search recipes...',
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
-              filled: true,
-              fillColor: Colors.grey[200],
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10.0),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ),
 
         // Liste des recettes
         Expanded(
@@ -137,12 +125,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildOtherTabs() {
     switch (_selectedIndex) {
-      case 1: // Favorites
+      case 0:
+        return _buildHomeContent(Provider.of<RecipeProvider>(context));
+      case 1: // Index 1: Favorites
         return FavoriteRecipesScreen();
-      case 2: // Add
+      case 2: // Index 2: Search
+        return SearchRecipesScreen();
+      case 3: // Index 3: Add
         return AddRecipeScreen();
-      case 3: // Profile
-        return ProfileScreen(); // Modifié pour afficher l'écran de profil
+      case 4: // Index 4: Profile
+        return ProfileScreen();
       default:
         return _buildHomeContent(Provider.of<RecipeProvider>(context));
     }
