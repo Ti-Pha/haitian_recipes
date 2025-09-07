@@ -43,20 +43,23 @@ class AuthProvider with ChangeNotifier {
     });
   }
 
+  String? _errorMessage;
+
+  String? get errorMessage => _errorMessage;
+
   Future<bool> signInWithEmail(String email, String password) async {
     _setLoading(true);
+    _errorMessage = null; // Réinitialiser le message d'erreur
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-
       if (result.user != null) {
         DocumentSnapshot userDoc = await _firestore
             .collection('users')
             .doc(result.user!.uid)
             .get();
-
         if (userDoc.exists) {
           _currentUser = UserModel.fromMap(
             userDoc.data() as Map<String, dynamic>,
@@ -67,9 +70,22 @@ class AuthProvider with ChangeNotifier {
       }
       _setLoading(false);
       return false;
+    } on FirebaseAuthException catch (e) {
+      _setLoading(false);
+      if (e.code == 'user-not-found') {
+        _errorMessage = "Aucun utilisateur trouvé pour cet email.";
+      } else if (e.code == 'wrong-password') {
+        _errorMessage = "Mot de passe incorrect.";
+      } else {
+        _errorMessage = "Une erreur est survenue. Veuillez réessayer.";
+      }
+      notifyListeners();
+      return false;
     } catch (e) {
       _setLoading(false);
-      rethrow;
+      _errorMessage = "Une erreur inattendue est survenue.";
+      notifyListeners();
+      return false;
     }
   }
 

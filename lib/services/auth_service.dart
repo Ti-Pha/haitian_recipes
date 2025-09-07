@@ -7,6 +7,8 @@ class AuthService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   // Connexion avec email et mot de passe
+  // Dans votre fichier auth_service.dart
+
   Future<UserModel?> signInWithEmail(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
@@ -25,8 +27,8 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print(e.toString());
-      return null;
+      // Rejeter l'exception pour que le AuthProvider puisse la capturer
+      rethrow;
     }
   }
 
