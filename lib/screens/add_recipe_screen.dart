@@ -5,8 +5,11 @@ import 'dart:io';
 import '../providers/recipe_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/recipe_model.dart';
+import 'package:uuid/uuid.dart';
 
 class AddRecipeScreen extends StatefulWidget {
+  const AddRecipeScreen({super.key});
+
   @override
   _AddRecipeScreenState createState() => _AddRecipeScreenState();
 }
@@ -230,7 +233,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                           ),
                           SizedBox(height: 8),
                           DropdownButtonFormField<String>(
-                            value: _difficulty,
+                            initialValue: _difficulty,
                             items: ['Easy', 'Medium', 'Hard'].map((
                               String value,
                             ) {
@@ -317,7 +320,7 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
                 if (recipeProvider.isLoading)
                   Center(child: CircularProgressIndicator())
                 else
-                  Container(
+                  SizedBox(
                     width: double.infinity,
                     height: 50,
                     child: ElevatedButton(
@@ -337,6 +340,21 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
         ),
       ),
     );
+  }
+
+  void _resetForm() {
+    _formKey.currentState?.reset();
+    _titleController.clear();
+    _descriptionController.clear();
+    _cookingTimeController.clear();
+    _ingredientsController.clear();
+    _instructionsController.clear();
+    setState(() {
+      _imageFile = null;
+      _difficulty = 'Easy';
+      _takePhotoSelected = false;
+      _uploadFromGallerySelected = true;
+    });
   }
 
   Future<void> _takePhoto() async {
@@ -379,49 +397,37 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
   ) async {
     if (_formKey.currentState!.validate() && authProvider.currentUser != null) {
       try {
-        // Préparer la liste des ingrédients
+        final Uuid uuid = Uuid();
         List<String> ingredients = _ingredientsController.text
             .split('\n')
             .map((ingredient) => ingredient.trim())
             .where((ingredient) => ingredient.isNotEmpty)
             .toList();
 
-        // Créer l'objet Recipe
         RecipeModel newRecipe = RecipeModel(
-          recipeId: DateTime.now().millisecondsSinceEpoch.toString(),
+          recipeId: uuid.v4(),
           title: _titleController.text,
+          description: _descriptionController.text,
           ingredients: ingredients,
           instructions: _instructionsController.text,
-          imageUrl: null, // On n'utilise plus Firebase Storage
-          localImagePath: null, // Sera rempli après la sauvegarde locale
+          cookingTime: _cookingTimeController.text,
+          imageUrl: null,
+          localImagePath: null,
           authorId: authProvider.currentUser!.userId,
           authorName:
               authProvider.currentUser!.displayName ??
               authProvider.currentUser!.email,
           datePublication: DateTime.now(),
+          difficulty: _difficulty,
         );
 
-        // Ajouter la recette avec l'image locale
         final success = await recipeProvider.addRecipe(newRecipe, _imageFile);
 
         if (success) {
-          // Redirection vers l'écran d'accueil après un ajout réussi
-          // La ligne ci-dessous est à changer
-          // Navigator.pop(context);
-
-          // Utilisez pushAndRemoveUntil pour rediriger vers la page d'accueil
-          // et retirer toutes les autres pages de la pile de navigation.
-          Navigator.pushAndRemoveUntil(
-            context,
-            MaterialPageRoute(
-              builder: (context) => AddRecipeScreen(),
-            ), // Remplacez 'HomeScreen' par le nom de votre page d'accueil
-            (Route<dynamic> route) => false,
-          );
-
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Recette ajoutée avec succès!')),
           );
+          _resetForm(); // Appel de la nouvelle méthode
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text('Erreur lors de l\'ajout de la recette')),

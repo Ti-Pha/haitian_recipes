@@ -165,6 +165,30 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // ... le reste de votre classe AuthProvider
+
+  // Dans le fichier auth_provider.dart
+  Future<void> removeFavorite(String recipeId) async {
+    if (_currentUser == null) return;
+    List<String> updatedFavorites = List.from(_currentUser!.favoriteRecipes);
+    if (updatedFavorites.contains(recipeId)) {
+      updatedFavorites.remove(recipeId);
+      try {
+        await _firestore.collection('users').doc(_currentUser!.userId).update({
+          'favoriteRecipes': updatedFavorites,
+        });
+        _currentUser = _currentUser!.copyWith(
+          favoriteRecipes: updatedFavorites,
+        );
+        notifyListeners();
+      } catch (e) {
+        if (kDebugMode) {
+          print('Error removing favorite: $e');
+        }
+      }
+    }
+  }
+
   bool isFavorite(String recipeId) {
     return _currentUser?.favoriteRecipes.contains(recipeId) ?? false;
   }

@@ -8,7 +8,7 @@ import 'dart:io';
 class RecipeCard extends StatelessWidget {
   final RecipeModel recipe;
 
-  const RecipeCard({Key? key, required this.recipe}) : super(key: key);
+  const RecipeCard({super.key, required this.recipe});
 
   @override
   Widget build(BuildContext context) {
@@ -81,7 +81,7 @@ class RecipeCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
-                        'Easy',
+                        recipe.difficulty,
                         style: TextStyle(color: Colors.white),
                       ),
                     ),
@@ -96,7 +96,7 @@ class RecipeCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child: Text(
-                        '30 min',
+                        recipe.cookingTime,
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

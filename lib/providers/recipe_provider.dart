@@ -3,6 +3,9 @@ import 'dart:io';
 import '../models/recipe_model.dart';
 import '../services/database_service.dart';
 import '../services/local_storage_service.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
+import '../providers/auth_provider.dart';
 
 class RecipeProvider with ChangeNotifier {
   final DatabaseService _databaseService = DatabaseService();
@@ -93,7 +96,7 @@ class RecipeProvider with ChangeNotifier {
   }
 
   // 👇 Nouvelle méthode pour supprimer une recette
-  Future<void> deleteRecipe(RecipeModel recipe) async {
+  Future<void> deleteRecipe(RecipeModel recipe, BuildContext context) async {
     try {
       // Supprimer l'image locale associée
       if (recipe.localImagePath != null) {
@@ -105,7 +108,11 @@ class RecipeProvider with ChangeNotifier {
       }
 
       // Supprimer la recette de la base de données
-      await _databaseService.deleteRecipe(recipe.recipeId!);
+      await _databaseService.deleteRecipe(recipe.recipeId);
+
+      // 👇 L'AJOUT CRUCIAL : Supprimer l'ID de la recette des favoris
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+      await authProvider.removeFavorite(recipe.recipeId);
 
       // Mettre à jour la liste locale
       _recipes.removeWhere((r) => r.recipeId == recipe.recipeId);

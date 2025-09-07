@@ -11,7 +11,7 @@ import 'edit_recipe_screen.dart';
 class RecipeDetailScreen extends StatelessWidget {
   final RecipeModel recipe;
 
-  const RecipeDetailScreen({Key? key, required this.recipe}) : super(key: key);
+  const RecipeDetailScreen({super.key, required this.recipe});
 
   @override
   Widget build(BuildContext context) {
@@ -202,10 +202,12 @@ class RecipeDetailScreen extends StatelessWidget {
                 Navigator.of(dialogContext).pop();
               },
             ),
+            // Dans le fichier recipe_detail_screen.dart
             TextButton(
               child: Text('Supprimer', style: TextStyle(color: Colors.red)),
-              onPressed: () {
-                recipeProvider.deleteRecipe(recipe);
+              onPressed: () async {
+                // Rendre la fonction asynchrone
+                await recipeProvider.deleteRecipe(recipe, context);
                 Navigator.of(dialogContext).pop();
                 Navigator.of(context).pop();
               },

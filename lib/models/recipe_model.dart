@@ -3,8 +3,11 @@ import 'dart:io';
 class RecipeModel {
   final String recipeId;
   final String title;
+  final String description; // Ajouté
   final List<String> ingredients;
   final String instructions;
+  final String cookingTime; // Ajouté
+  final String difficulty; // Ajouté
   final String? imageUrl;
   final String? localImagePath;
   final String authorId;
@@ -14,8 +17,11 @@ class RecipeModel {
   RecipeModel({
     required this.recipeId,
     required this.title,
+    required this.description, // Ajouté
     required this.ingredients,
     required this.instructions,
+    required this.cookingTime, // Ajouté
+    required this.difficulty, // Ajouté
     this.imageUrl,
     this.localImagePath,
     required this.authorId,
@@ -26,8 +32,11 @@ class RecipeModel {
   RecipeModel copyWith({
     String? recipeId,
     String? title,
+    String? description,
     List<String>? ingredients,
     String? instructions,
+    String? cookingTime,
+    String? difficulty,
     String? imageUrl,
     String? localImagePath,
     String? authorId,
@@ -37,8 +46,11 @@ class RecipeModel {
     return RecipeModel(
       recipeId: recipeId ?? this.recipeId,
       title: title ?? this.title,
+      description: description ?? this.description,
       ingredients: ingredients ?? this.ingredients,
       instructions: instructions ?? this.instructions,
+      cookingTime: cookingTime ?? this.cookingTime,
+      difficulty: difficulty ?? this.difficulty,
       imageUrl: imageUrl ?? this.imageUrl,
       localImagePath: localImagePath ?? this.localImagePath,
       authorId: authorId ?? this.authorId,
@@ -51,8 +63,11 @@ class RecipeModel {
     return {
       'recipeId': recipeId,
       'title': title,
+      'description': description,
       'ingredients': ingredients,
       'instructions': instructions,
+      'cookingTime': cookingTime,
+      'difficulty': difficulty,
       'imageUrl': imageUrl,
       'localImagePath': localImagePath,
       'authorId': authorId,
@@ -79,8 +94,11 @@ class RecipeModel {
     return RecipeModel(
       recipeId: map['recipeId'] ?? '',
       title: map['title'] ?? '',
+      description: map['description'] ?? '',
       ingredients: List<String>.from(map['ingredients'] ?? []),
       instructions: map['instructions'] ?? '',
+      cookingTime: map['cookingTime'] ?? '',
+      difficulty: map['difficulty'] ?? 'Easy',
       imageUrl: map['imageUrl'],
       localImagePath: map['localImagePath'],
       authorId: map['authorId'] ?? '',
@@ -89,7 +107,6 @@ class RecipeModel {
     );
   }
 
-  // 👇 Nouvelle méthode pour la suppression
   Future<void> delete() async {
     try {
       if (localImagePath != null) {
