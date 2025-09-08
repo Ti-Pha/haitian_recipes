@@ -16,28 +16,51 @@ class SearchRecipesScreen extends StatefulWidget {
 class _SearchRecipesScreenState extends State<SearchRecipesScreen> {
   String? _selectedDifficulty;
   String? _selectedCookingTime;
+  String _searchQuery = ''; // Nouvelle variable pour la recherche par nom
 
   @override
   Widget build(BuildContext context) {
     final recipeProvider = Provider.of<RecipeProvider>(context);
 
+    // Utilisez la liste dynamique des temps de cuisson, directement du provider
+    final List<String> cookingTimes = recipeProvider.uniqueCookingTimes;
+
     // Utilisez la nouvelle méthode pour obtenir la liste filtrée
     final List<RecipeModel> filteredRecipes = recipeProvider.getFilteredRecipes(
       difficulty: _selectedDifficulty,
       cookingTime: _selectedCookingTime,
+      searchQuery: _searchQuery, // Passez la valeur de la recherche
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text('Rechercher des recettes')),
+      appBar: AppBar(title: const Text('Rechercher des recettes')),
       body: Column(
         children: [
+          // Champ de texte pour la recherche par nom
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: TextFormField(
+              decoration: InputDecoration(
+                labelText: 'Rechercher par nom',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value;
+                });
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
               children: [
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    decoration: InputDecoration(labelText: 'Difficulté'),
+                    decoration: const InputDecoration(labelText: 'Difficulté'),
                     value: _selectedDifficulty,
                     items: ['Easy', 'Medium', 'Hard'].map((String value) {
                       return DropdownMenuItem<String>(
@@ -52,12 +75,14 @@ class _SearchRecipesScreenState extends State<SearchRecipesScreen> {
                     },
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: DropdownButtonFormField<String>(
-                    decoration: InputDecoration(labelText: 'Temps de cuisson'),
+                    decoration: const InputDecoration(
+                      labelText: 'Temps de cuisson',
+                    ),
                     value: _selectedCookingTime,
-                    items: ['15 min', '30 min', '1 hr'].map((String value) {
+                    items: cookingTimes.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
                         child: Text(value),
@@ -75,9 +100,9 @@ class _SearchRecipesScreenState extends State<SearchRecipesScreen> {
           ),
           Expanded(
             child: recipeProvider.isLoading
-                ? Center(child: CircularProgressIndicator())
+                ? const Center(child: CircularProgressIndicator())
                 : filteredRecipes.isEmpty
-                ? Center(child: Text('Aucune recette trouvée.'))
+                ? const Center(child: Text('Aucune recette trouvée.'))
                 : ListView.builder(
                     itemCount: filteredRecipes.length,
                     itemBuilder: (context, index) {

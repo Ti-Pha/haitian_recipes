@@ -389,8 +389,6 @@ class _AddRecipeScreenState extends State<AddRecipeScreen> {
     }
   }
 
-  // ... (code existant) ...
-
   void _addRecipe(
     AuthProvider authProvider,
     RecipeProvider recipeProvider,

@@ -1,5 +1,3 @@
-// lib/screens/edit_recipe_screen.dart
-
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +18,12 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   late TextEditingController _titleController;
   late TextEditingController _instructionsController;
   late List<TextEditingController> _ingredientControllers;
+  // Nouveau contrôleur de texte pour le temps de cuisson
+  late TextEditingController _cookingTimeController;
+
+  late String _selectedDifficulty;
+
+  final List<String> _difficulties = ['Easy', 'Medium', 'Hard'];
 
   @override
   void initState() {
@@ -31,12 +35,22 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
     _ingredientControllers = widget.recipe.ingredients
         .map((ingredient) => TextEditingController(text: ingredient))
         .toList();
+
+    // Initialisation du contrôleur de temps de cuisson
+    _cookingTimeController = TextEditingController(
+      text: widget.recipe.cookingTime,
+    );
+
+    _selectedDifficulty = _difficulties.contains(widget.recipe.difficulty)
+        ? widget.recipe.difficulty
+        : _difficulties[0];
   }
 
   @override
   void dispose() {
     _titleController.dispose();
     _instructionsController.dispose();
+    _cookingTimeController.dispose(); // Libérer le nouveau contrôleur
     for (var controller in _ingredientControllers) {
       controller.dispose();
     }
@@ -68,12 +82,16 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         title: _titleController.text,
         instructions: _instructionsController.text,
         ingredients: updatedIngredients,
+        difficulty: _selectedDifficulty,
+        // Récupération de la valeur du nouveau contrôleur
+        cookingTime: _cookingTimeController.text,
       );
 
       Provider.of<RecipeProvider>(
         context,
         listen: false,
       ).updateRecipe(updatedRecipe);
+
       Navigator.of(context).pop();
     }
   }
@@ -82,7 +100,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Modifier la recette'),
+        title: const Text('Modifier la recette'),
         backgroundColor: Colors.deepOrange,
       ),
       body: SingleChildScrollView(
@@ -94,7 +112,9 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: InputDecoration(labelText: 'Titre de la recette'),
+                decoration: const InputDecoration(
+                  labelText: 'Titre de la recette',
+                ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Veuillez entrer un titre';
@@ -102,7 +122,41 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedDifficulty,
+                decoration: const InputDecoration(labelText: 'Difficulté'),
+                items: _difficulties.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (String? newValue) {
+                  setState(() {
+                    _selectedDifficulty = newValue!;
+                  });
+                },
+                validator: (value) => value == null
+                    ? 'Veuillez sélectionner une difficulté'
+                    : null,
+              ),
+              const SizedBox(height: 16),
+              // Nouveau champ de texte pour le temps de cuisson
+              TextFormField(
+                controller: _cookingTimeController,
+                decoration: const InputDecoration(
+                  labelText: 'Temps de cuisson',
+                  hintText: 'Ex: 45 min ou 1h30',
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Veuillez entrer le temps de cuisson';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
               Text(
                 'Ingrédients:',
                 style: Theme.of(context).textTheme.titleLarge,
@@ -129,7 +183,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.remove_circle, color: Colors.red),
+                        icon: const Icon(
+                          Icons.remove_circle,
+                          color: Colors.red,
+                        ),
                         onPressed: () => _removeIngredientField(index),
                       ),
                     ],
@@ -138,12 +195,12 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               }),
               TextButton(
                 onPressed: _addIngredientField,
-                child: Text('Ajouter un ingrédient'),
+                child: const Text('Ajouter un ingrédient'),
               ),
-              SizedBox(height: 16),
+              const SizedBox(height: 16),
               TextFormField(
                 controller: _instructionsController,
-                decoration: InputDecoration(labelText: 'Instructions'),
+                decoration: const InputDecoration(labelText: 'Instructions'),
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 validator: (value) {
@@ -153,14 +210,14 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                   return null;
                 },
               ),
-              SizedBox(height: 24),
+              const SizedBox(height: 24),
               ElevatedButton(
                 onPressed: _updateRecipe,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.deepOrange,
-                  minimumSize: Size(double.infinity, 50),
+                  minimumSize: const Size(double.infinity, 50),
                 ),
-                child: Text('Mettre à jour la recette'),
+                child: const Text('Mettre à jour la recette'),
               ),
             ],
           ),
