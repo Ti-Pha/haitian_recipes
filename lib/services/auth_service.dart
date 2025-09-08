@@ -6,9 +6,6 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Connexion avec email et mot de passe
-  // Dans votre fichier auth_service.dart
-
   Future<UserModel?> signInWithEmail(String email, String password) async {
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
@@ -23,16 +20,17 @@ class AuthService {
             .doc(user.uid)
             .get();
 
-        return UserModel.fromMap(userDoc.data() as Map<String, dynamic>);
+        return UserModel.fromMap(
+          userDoc.data() as Map<String, dynamic>,
+          userDoc.id,
+        );
       }
       return null;
     } catch (e) {
-      // Rejeter l'exception pour que le AuthProvider puisse la capturer
       rethrow;
     }
   }
 
-  // Inscription avec email et mot de passe
   Future<UserModel?> signUpWithEmail(
     String email,
     String password,
@@ -50,6 +48,7 @@ class AuthService {
           userId: user.uid,
           email: email,
           displayName: displayName,
+          favoriteRecipes: [],
         );
 
         await _firestore.collection('users').doc(user.uid).set(newUser.toMap());
@@ -58,16 +57,13 @@ class AuthService {
       }
       return null;
     } catch (e) {
-      print(e.toString());
-      return null;
+      rethrow;
     }
   }
 
-  // Déconnexion
   Future<void> signOut() async {
     await _auth.signOut();
   }
 
-  // Récupérer l'utilisateur actuel
   Stream<User?> get currentUser => _auth.authStateChanges();
 }

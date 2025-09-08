@@ -20,9 +20,10 @@ class AuthProvider with ChangeNotifier {
             .doc(firebaseUser.uid)
             .get();
 
-        if (userDoc.exists) {
+        if (userDoc.exists && userDoc.data() != null) {
           _currentUser = UserModel.fromMap(
             userDoc.data() as Map<String, dynamic>,
+            userDoc.id,
           );
         } else {
           _currentUser = UserModel(
@@ -30,6 +31,7 @@ class AuthProvider with ChangeNotifier {
             email: firebaseUser.email!,
             displayName:
                 firebaseUser.displayName ?? firebaseUser.email!.split('@')[0],
+            favoriteRecipes: [],
           );
           await _firestore
               .collection('users')
@@ -49,7 +51,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<bool> signInWithEmail(String email, String password) async {
     _setLoading(true);
-    _errorMessage = null; // Réinitialiser le message d'erreur
+    _errorMessage = null;
     try {
       UserCredential result = await _auth.signInWithEmailAndPassword(
         email: email,
@@ -60,9 +62,11 @@ class AuthProvider with ChangeNotifier {
             .collection('users')
             .doc(result.user!.uid)
             .get();
-        if (userDoc.exists) {
+
+        if (userDoc.exists && userDoc.data() != null) {
           _currentUser = UserModel.fromMap(
             userDoc.data() as Map<String, dynamic>,
+            userDoc.id,
           );
         }
         _setLoading(false);
@@ -106,6 +110,7 @@ class AuthProvider with ChangeNotifier {
           userId: result.user!.uid,
           email: email,
           displayName: displayName,
+          favoriteRecipes: [],
         );
 
         await _firestore
@@ -179,7 +184,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // C'est ici que la méthode manquante a été ajoutée.
   Future<void> removeFavoriteFromUser(String userId, String recipeId) async {
     try {
       await _firestore.collection('users').doc(userId).update({

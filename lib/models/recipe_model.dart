@@ -3,11 +3,11 @@ import 'dart:io';
 class RecipeModel {
   final String recipeId;
   final String title;
-  final String description; // Ajouté
+  final String description;
   final List<String> ingredients;
   final String instructions;
-  final String cookingTime; // Ajouté
-  final String difficulty; // Ajouté
+  final String cookingTime;
+  final String difficulty;
   final String? imageUrl;
   final String? localImagePath;
   final String authorId;
@@ -17,11 +17,11 @@ class RecipeModel {
   RecipeModel({
     required this.recipeId,
     required this.title,
-    required this.description, // Ajouté
+    required this.description,
     required this.ingredients,
     required this.instructions,
-    required this.cookingTime, // Ajouté
-    required this.difficulty, // Ajouté
+    required this.cookingTime,
+    required this.difficulty,
     this.imageUrl,
     this.localImagePath,
     required this.authorId,
@@ -113,11 +113,11 @@ class RecipeModel {
         final file = File(localImagePath!);
         if (await file.exists()) {
           await file.delete();
-          print('Image locale supprimée pour la recette: $title');
+          print('Local image deleted for the recipe: $title');
         }
       }
     } catch (e) {
-      print('Erreur lors de la suppression de l\'image locale: $e');
+      print('Error while deleting the local image: $e');
     }
   }
 }

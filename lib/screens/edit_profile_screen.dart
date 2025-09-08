@@ -32,10 +32,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final newDisplayName = _displayNameController.text.trim();
 
-      // Appelle la méthode d'édition du profil que nous allons ajouter à AuthProvider
       await authProvider.updateUserProfile(displayName: newDisplayName);
 
-      Navigator.of(context).pop(); // Revient à l'écran de profil
+      Navigator.of(context).pop();
     }
   }
 

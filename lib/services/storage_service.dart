@@ -18,7 +18,7 @@ class StorageService {
       print('Image uploaded. Download URL: $downloadUrl');
       return downloadUrl;
     } on FirebaseException catch (e) {
-      print('Erreur détaillée lors de l\'upload: $e');
+      print('Error while uploading: $e');
       rethrow;
     }
   }

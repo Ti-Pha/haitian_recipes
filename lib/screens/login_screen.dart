@@ -28,16 +28,16 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: 20),
-                // Logo agrandi
+
                 Center(
                   child: Image.asset(
-                    'assets/images/logo.png', // Remplacez par le chemin de votre logo
+                    'assets/images/logo.png',
                     width: 150,
                     height: 150,
                   ),
                 ),
                 SizedBox(height: 20),
-                // Titre principal
+
                 Center(
                   child: Column(
                     children: [
@@ -58,13 +58,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
                 SizedBox(height: 40),
-                // Sous-titre
+
                 Text(
                   'Welcome Back',
                   style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 20),
-                // Champ email
+
                 Text('Email', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 TextFormField(
@@ -75,13 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
+                      return 'Please enter your email';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 20),
-                // Champ mot de passe
+
                 Text('Password', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 TextFormField(
@@ -105,16 +105,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre mot de passe';
+                      return 'Please enter your password';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 30),
-                // Ligne séparatrice
+
                 Divider(),
                 SizedBox(height: 20),
-                // Bouton de connexion orange
+
                 _isLoading
                     ? Center(child: CircularProgressIndicator())
                     : SizedBox(
@@ -123,21 +123,16 @@ class _LoginScreenState extends State<LoginScreen> {
                         child: ElevatedButton(
                           onPressed: _login,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Colors.deepOrange, // Couleur orange
+                            backgroundColor: Colors.deepOrange,
                           ),
                           child: Text(
                             'Login',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors
-                                  .white, // Texte en blanc pour contraster
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
                 SizedBox(height: 20),
-                // Lien vers l'inscription avec texte orange
+
                 Center(
                   child: Column(
                     children: [
@@ -152,7 +147,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: Colors.deepOrange, // Texte orange
+                            color: Colors.deepOrange,
                           ),
                         ),
                       ),
@@ -186,9 +181,9 @@ class _LoginScreenState extends State<LoginScreen> {
       if (success) {
         Navigator.pushReplacementNamed(context, '/home');
       } else {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Échec de la connexion')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to log in. Please try again.')),
+        );
       }
     }
   }

@@ -8,7 +8,7 @@ class UserModel {
     required this.userId,
     required this.email,
     this.displayName,
-    this.favoriteRecipes = const [], // Initialise la liste à vide par défaut
+    this.favoriteRecipes = const [],
   });
 
   Map<String, dynamic> toMap() {
@@ -16,21 +16,19 @@ class UserModel {
       'userId': userId,
       'email': email,
       'displayName': displayName,
-      'favoriteRecipes': favoriteRecipes, // Ajoute le champ pour les favoris
+      'favoriteRecipes': favoriteRecipes,
     };
   }
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
+  factory UserModel.fromMap(Map<String, dynamic> map, String id) {
     return UserModel(
-      userId: map['userId'] ?? '',
+      userId: id,
       email: map['email'] ?? '',
       displayName: map['displayName'],
-      // Récupère la liste de favoris depuis la map, en gérant le cas où elle est nulle
       favoriteRecipes: List<String>.from(map['favoriteRecipes'] ?? []),
     );
   }
 
-  // Ajoute une méthode copyWith pour mettre à jour l'objet de manière immuable
   UserModel copyWith({
     String? userId,
     String? email,

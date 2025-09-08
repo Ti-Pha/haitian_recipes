@@ -5,17 +5,16 @@ import '../providers/auth_provider.dart';
 import '../providers/recipe_provider.dart';
 import '../models/recipe_model.dart';
 import 'login_screen.dart';
-import 'edit_profile_screen.dart'; // Importez le nouvel écran
-
-// ... (code existant de la classe ProfileScreen et _ProfileScreenState) ...
+import 'edit_profile_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // ... (méthode build existante) ...
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
@@ -59,8 +58,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ... (méthodes existantes) ...
-
   Widget _buildAccountSettings() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +72,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
           title: 'Edit Profile',
           subtitle: 'Update your personal information',
           onTap: () {
-            // Navigue vers l'écran de modification du profil
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (context) => const EditProfileScreen(),
@@ -99,15 +95,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Mettre à jour la signature de la méthode _buildSettingsItem pour accepter un onTap
   Widget _buildSettingsItem({
     required IconData icon,
     required String title,
     required String subtitle,
-    VoidCallback? onTap, // Ajout de ce paramètre
+    VoidCallback? onTap,
   }) {
     return InkWell(
-      onTap: onTap, // Utilise la fonction passée en paramètre
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         child: Row(
@@ -137,9 +132,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // ... (le reste du code de l'écran reste inchangé) ...
   Widget _buildProfileHeader(AuthProvider authProvider) {
-    String formattedDate = 'Member since January 2024';
     return Center(
       child: Column(
         children: [
@@ -168,8 +161,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(height: 16),
           Text(
             authProvider.currentUser?.displayName ??
-                authProvider.currentUser?.email?.split('@')[0] ??
-                'Utilisateur',
+                authProvider.currentUser?.email.split('@')[0] ??
+                'User',
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 4),
@@ -178,10 +171,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             style: TextStyle(fontSize: 16, color: Colors.grey[600]),
           ),
           SizedBox(height: 8),
-          Text(
-            formattedDate,
-            style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-          ),
         ],
       ),
     );

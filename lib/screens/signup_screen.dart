@@ -22,7 +22,7 @@ class _SignupScreenState extends State<SignupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Créer un compte'),
+        title: Text('Create Account'),
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -109,7 +109,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre nom';
+                      return 'Please enter your last name';
                     }
                     return null;
                   },
@@ -127,16 +127,16 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer votre email';
+                      return 'Please enter your email';
                     }
                     if (!value.contains('@')) {
-                      return 'Veuillez entrer un email valide';
+                      return 'Please enter a validate email';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 20),
-                // Champ Mot de passe
+
                 Text('Password', style: TextStyle(fontWeight: FontWeight.bold)),
                 SizedBox(height: 8),
                 TextFormField(
@@ -160,19 +160,17 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Veuillez entrer un mot de passe';
+                      return 'Please enter your password';
                     }
                     if (value.length < 6) {
-                      return 'Le mot de passe doit contenir au moins 6 caractères';
+                      return 'Password must be at least 6 characters long';
                     }
                     return null;
                   },
                 ),
                 SizedBox(height: 30),
-                // Ligne séparatrice
                 Divider(),
                 SizedBox(height: 20),
-                // Bouton d'inscription
                 _isLoading
                     ? Center(child: CircularProgressIndicator())
                     : SizedBox(
@@ -181,21 +179,16 @@ class _SignupScreenState extends State<SignupScreen> {
                         child: ElevatedButton(
                           onPressed: _signUp,
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                Colors.deepOrange, // Couleur orange
+                            backgroundColor: Colors.deepOrange,
                           ),
                           child: Text(
                             'Sign Up',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors
-                                  .white, // Texte en blanc pour contraster
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ),
                       ),
                 SizedBox(height: 20),
-                // Lien vers la connexion
+
                 Center(
                   child: Column(
                     children: [
@@ -210,7 +203,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: Colors.deepOrange, // Texte orange
+                            color: Colors.deepOrange,
                           ),
                         ),
                       ),
@@ -247,7 +240,7 @@ class _SignupScreenState extends State<SignupScreen> {
           Navigator.pushReplacementNamed(context, '/home');
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Échec de la création du compte')),
+            SnackBar(content: Text('Failed to sign up. Please try again.')),
           );
         }
       } catch (e) {
@@ -257,7 +250,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('Erreur: ${e.toString()}')));
+        ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
       }
     }
   }

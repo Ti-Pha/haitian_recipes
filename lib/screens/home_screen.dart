@@ -5,7 +5,7 @@ import '../providers/recipe_provider.dart';
 import '../models/recipe_model.dart';
 import '../widgets/recipe_card.dart';
 import 'add_recipe_screen.dart';
-import 'profil_screen.dart'; // Import ajouté
+import 'profil_screen.dart';
 import 'favorite_recipes_screen.dart';
 import 'search_recipes_screen.dart';
 
@@ -88,28 +88,22 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildHomeContent(RecipeProvider recipeProvider) {
     return Column(
       children: [
-        // Barre de recherche
-
-        // Liste des recettes
         Expanded(
           child: recipeProvider.isLoading
               ? Center(child: CircularProgressIndicator())
               : recipeProvider.recipes.isEmpty
               ? Center(
                   child: Text(
-                    'Aucune recette disponible.\nSoyez le premier à partager une recette!',
+                    'No recipe yet!',
                     textAlign: TextAlign.center,
                     style: TextStyle(fontSize: 18),
                   ),
                 )
               : ListView.builder(
-                  // padding: EdgeInsets.all(16.0), // 👈 Suppression de ce padding
-                  padding: EdgeInsets
-                      .zero, // 👈 Remplacez-le par EdgeInsets.zero si nécessaire
+                  padding: EdgeInsets.zero,
                   itemCount: recipeProvider.recipes.length,
                   itemBuilder: (context, index) {
                     return Padding(
-                      // 👈 Ajout d'un Padding autour de chaque élément
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16.0,
                         vertical: 8.0,
@@ -127,13 +121,13 @@ class _HomeScreenState extends State<HomeScreen> {
     switch (_selectedIndex) {
       case 0:
         return _buildHomeContent(Provider.of<RecipeProvider>(context));
-      case 1: // Index 1: Favorites
+      case 1:
         return FavoriteRecipesScreen();
-      case 2: // Index 2: Search
+      case 2:
         return SearchRecipesScreen();
-      case 3: // Index 3: Add
+      case 3:
         return AddRecipeScreen();
-      case 4: // Index 4: Profile
+      case 4:
         return ProfileScreen();
       default:
         return _buildHomeContent(Provider.of<RecipeProvider>(context));

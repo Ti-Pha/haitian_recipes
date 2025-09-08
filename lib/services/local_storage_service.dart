@@ -8,38 +8,33 @@ class LocalStorageService {
   factory LocalStorageService() => _instance;
   LocalStorageService._internal();
 
-  // Obtenir le repertoire de documents de l'application
   Future<Directory> get _appDocumentsDirectory async {
     return await getApplicationDocumentsDirectory();
   }
 
-  // Sauvegarder une image localement
   Future<String> saveImageLocally(File imageFile, String fileName) async {
     try {
       final Directory appDocDir = await _appDocumentsDirectory;
       final String imagePath = path.join(appDocDir.path, fileName);
 
-      // Copier le fichier vers le repertoire de l'application
       final File savedImage = await imageFile.copy(imagePath);
 
       return savedImage.path;
     } catch (e) {
-      print('Erreur lors de la sauvegarde locale: $e');
+      print('Error while saving images: $e');
       rethrow;
     }
   }
 
-  // Charger une image a partir du stockage local
   Future<File> loadImageFromLocal(String imagePath) async {
     try {
       return File(imagePath);
     } catch (e) {
-      print('Erreur lors du chargement local: $e');
+      print('Error loading: $e');
       rethrow;
     }
   }
 
-  // Dans LocalStorageService
   Future<void> cleanupOrphanedImages(List<String> usedImagePaths) async {
     try {
       final List<String> allSavedImages = await getAllSavedImages();
@@ -47,15 +42,14 @@ class LocalStorageService {
       for (String imagePath in allSavedImages) {
         if (!usedImagePaths.contains(imagePath)) {
           await deleteLocalImage(imagePath);
-          print('Image orpheline supprimée: $imagePath');
+          print('Image deleted: $imagePath');
         }
       }
     } catch (e) {
-      print('Erreur lors du nettoyage des images orphelines: $e');
+      print('Error cleaning images: $e');
     }
   }
 
-  // Vérifier si une image existe localement
   Future<bool> imageExists(String imagePath) async {
     try {
       return await File(imagePath).exists();
@@ -64,7 +58,6 @@ class LocalStorageService {
     }
   }
 
-  // Supprimer une image localement
   Future<void> deleteLocalImage(String imagePath) async {
     try {
       final File imageFile = File(imagePath);
@@ -72,11 +65,10 @@ class LocalStorageService {
         await imageFile.delete();
       }
     } catch (e) {
-      print('Erreur lors de la suppression locale: $e');
+      print('Error while deleting: $e');
     }
   }
 
-  // Obtenir tous les fichiers d'images sauvegardes
   Future<List<String>> getAllSavedImages() async {
     try {
       final Directory appDocDir = await _appDocumentsDirectory;
@@ -92,7 +84,7 @@ class LocalStorageService {
           .map((file) => file.path)
           .toList();
     } catch (e) {
-      print('Erreur lors de la récupération des images: $e');
+      print('Error while retrieving images: $e');
       return [];
     }
   }

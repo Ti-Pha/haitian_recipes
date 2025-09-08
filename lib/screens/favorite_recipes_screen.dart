@@ -15,7 +15,7 @@ class FavoriteRecipesScreen extends StatelessWidget {
     if (authProvider.currentUser == null) {
       return Center(
         child: Text(
-          'Veuillez vous connecter pour voir vos recettes favorites.',
+          'Login to see your favorite recipes.',
           textAlign: TextAlign.center,
           style: TextStyle(fontSize: 18, color: Colors.grey),
         ),
@@ -28,11 +28,11 @@ class FavoriteRecipesScreen extends StatelessWidget {
         .toList();
 
     return Scaffold(
-      appBar: AppBar(title: Text('Mes Recettes Favorites')),
+      appBar: AppBar(title: Text('My Favorite Recipes')),
       body: favoriteRecipes.isEmpty
           ? Center(
               child: Text(
-                'Aucune recette favorite pour le moment.',
+                'No favorite recipe yet.',
                 style: TextStyle(fontSize: 18, color: Colors.grey),
               ),
             )

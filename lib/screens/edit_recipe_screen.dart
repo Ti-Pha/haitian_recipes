@@ -18,7 +18,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   late TextEditingController _titleController;
   late TextEditingController _instructionsController;
   late List<TextEditingController> _ingredientControllers;
-  // Nouveau contrôleur de texte pour le temps de cuisson
   late TextEditingController _cookingTimeController;
 
   late String _selectedDifficulty;
@@ -36,7 +35,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         .map((ingredient) => TextEditingController(text: ingredient))
         .toList();
 
-    // Initialisation du contrôleur de temps de cuisson
     _cookingTimeController = TextEditingController(
       text: widget.recipe.cookingTime,
     );
@@ -50,7 +48,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   void dispose() {
     _titleController.dispose();
     _instructionsController.dispose();
-    _cookingTimeController.dispose(); // Libérer le nouveau contrôleur
+    _cookingTimeController.dispose();
     for (var controller in _ingredientControllers) {
       controller.dispose();
     }
@@ -83,7 +81,6 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
         instructions: _instructionsController.text,
         ingredients: updatedIngredients,
         difficulty: _selectedDifficulty,
-        // Récupération de la valeur du nouveau contrôleur
         cookingTime: _cookingTimeController.text,
       );
 
@@ -100,7 +97,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Modifier la recette'),
+        title: const Text('update recipe'),
         backgroundColor: Colors.deepOrange,
       ),
       body: SingleChildScrollView(
@@ -112,12 +109,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Titre de la recette',
-                ),
+                decoration: const InputDecoration(labelText: 'recipe title'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer un titre';
+                    return 'Enter the title';
                   }
                   return null;
                 },
@@ -125,7 +120,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
                 value: _selectedDifficulty,
-                decoration: const InputDecoration(labelText: 'Difficulté'),
+                decoration: const InputDecoration(labelText: 'Difficulty'),
                 items: _difficulties.map((String value) {
                   return DropdownMenuItem<String>(
                     value: value,
@@ -137,28 +132,26 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                     _selectedDifficulty = newValue!;
                   });
                 },
-                validator: (value) => value == null
-                    ? 'Veuillez sélectionner une difficulté'
-                    : null,
+                validator: (value) => value == null ? 'Make a choice' : null,
               ),
               const SizedBox(height: 16),
-              // Nouveau champ de texte pour le temps de cuisson
+
               TextFormField(
                 controller: _cookingTimeController,
                 decoration: const InputDecoration(
-                  labelText: 'Temps de cuisson',
+                  labelText: 'Cooking time',
                   hintText: 'Ex: 45 min ou 1h30',
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer le temps de cuisson';
+                    return 'Enter the cooking time';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               Text(
-                'Ingrédients:',
+                'Ingredients:',
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               ..._ingredientControllers.asMap().entries.map((entry) {
@@ -172,11 +165,11 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                         child: TextFormField(
                           controller: controller,
                           decoration: InputDecoration(
-                            labelText: 'Ingrédient ${index + 1}',
+                            labelText: 'Ingredient ${index + 1}',
                           ),
                           validator: (value) {
                             if (value == null || value.isEmpty) {
-                              return 'Ne peut être vide';
+                              return 'Can not be empty';
                             }
                             return null;
                           },
@@ -195,7 +188,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
               }),
               TextButton(
                 onPressed: _addIngredientField,
-                child: const Text('Ajouter un ingrédient'),
+                child: const Text('Add ingredient'),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -205,7 +198,7 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                 keyboardType: TextInputType.multiline,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Veuillez entrer les instructions';
+                    return 'Enter the instructions';
                   }
                   return null;
                 },
@@ -217,7 +210,10 @@ class _EditRecipeScreenState extends State<EditRecipeScreen> {
                   backgroundColor: Colors.deepOrange,
                   minimumSize: const Size(double.infinity, 50),
                 ),
-                child: const Text('Mettre à jour la recette'),
+                child: const Text(
+                  'Update recipe',
+                  style: TextStyle(fontSize: 16, color: Colors.white),
+                ),
               ),
             ],
           ),
